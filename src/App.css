@@ -1,14 +1,155 @@
 .App {
   display: flex;
+  height: 100vh; /* Full viewport height */
 }
 
 .Sidebar {
-  width: 25%;
-  padding: 20px;
-  background-color: #f4f4f4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Evenly distribute vertically */
+  height: 100vh;
+  width: 250px;           /* Adjust width as needed */
+  background: #f4f4f4;    /* Light background */
+  padding: 32px 16px;
+  box-sizing: border-box;
+}
+
+.Sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly; /* Even spacing between items */
+  height: 100%;
+}
+
+.Sidebar li {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.Sidebar button {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  border: none;
+  background: #ff0000;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.Sidebar button:hover {
+  background: #ff0000;
+}
+
+.sidebar-label {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  left: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #222;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 4px;
+  white-space: nowrap;
+  font-size: 1rem;
+  pointer-events: none;
+  transition: opacity 0.2s, visibility 0.2s;
+  z-index: 10;
+}
+
+.Sidebar button:hover .sidebar-label {
+  visibility: visible;
+  opacity: 1;
 }
 
 .MainPane {
-  width: 75%;
-  padding: 20px;
+  padding: 32px;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;      /* Make children stack vertically */
+  align-items: center;         /* Center children horizontally */
+  justify-content: flex-start; /* Align children to the top */
+  width: 100%;                /* Take full viewport width */
+  box-sizing: border-box;
 }
+
+.add-task-bar {
+  display: flex;
+  width: 100%;
+  max-width: 500px;
+  margin: 16px 0;
+}
+
+.add-task-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  padding: 40px 40px 24px 40px;
+  width: 100%;
+  max-width: 800px;
+  margin: 48px 0 0 0;         /* Only top margin, no auto */
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.add-task-input {
+  border: none;
+  border-bottom: 2.5px solid #eee;
+  font-size: 2rem;       /* Larger font */
+  padding: 20px 0;
+  outline: none;
+  width: 100%;
+  background: transparent;
+}
+
+.add-task-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;             /* More space between buttons */
+}
+
+.add-task-btn {
+  padding: 16px 36px;
+  font-size: 1.2rem;
+  border: none;
+  background: #ff0101;   /* More opaque and vibrant */
+  color: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-task-btn:hover {
+  background: #ff4d4d;   /* Even more vibrant on hover */
+}
+
+.cancel-btn {
+  padding: 16px 36px;    /* Bigger button */
+  font-size: 1.2rem;
+  border: none;
+  background: #f4f4f4;
+  color: #222;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cancel-btn:hover {
+  background: #e0e0e0;
+}
+

@@ -10,16 +10,23 @@ function AddTask({ addTodo }) {
     }
   };
 
+  const handleCancel = () => {
+    setNewTodo('');
+  };
+
   return (
-    <div>
-      <h2>Add a New Task</h2>
+    <div className="add-task-card">
       <input
         type="text"
         value={newTodo}
         onChange={(e) => setNewTodo(e.target.value)}
-        placeholder="New task"
+        placeholder="Add a task"
+        className="add-task-input"
       />
-      <button onClick={handleAdd}>Add</button>
+      <div className="add-task-actions">
+        <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
+        <button className="add-task-btn" onClick={handleAdd}>Add task</button>
+      </div>
     </div>
   );
 }
