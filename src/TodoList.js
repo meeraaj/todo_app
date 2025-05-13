@@ -2,11 +2,13 @@ import React from 'react';
 
 function TodoList({ todos }) {
   return (
-    <div>
-      <h2>Todo List</h2>
-      <ul>
+    <div className="add-task-card">
+      <h2>List Tasks</h2>
+      <ul style={{ padding: 0, margin: 0, listStyle: 'none' }}>
         {todos.map(todo => (
-          <li key={todo.id}>{todo.text}</li>
+          <li key={todo.id} style={{ fontSize: '1.2rem', padding: '8px 0', borderBottom: '1px solid #eee' }}>
+            {todo.text}
+          </li>
         ))}
       </ul>
     </div>
