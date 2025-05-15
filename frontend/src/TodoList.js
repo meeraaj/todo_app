@@ -7,7 +7,7 @@ function TodoList({ todos }) {
       <ul style={{ padding: 0, margin: 0, listStyle: 'none' }}>
         {todos.map(todo => (
           <li key={todo.id} style={{ fontSize: '1.2rem', padding: '8px 0', borderBottom: '1px solid #eee' }}>
-            {todo.text}
+            <strong>{todo.name}</strong> - {todo.description} [{todo.status}]
           </li>
         ))}
       </ul>

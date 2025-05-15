@@ -5,11 +5,15 @@ function ModifyTask({ todos, modifyTodo }) {
   const [newText, setNewText] = useState('');
 
   const handleModify = () => {
-    if (id && newText.trim()) {
-      modifyTodo(Number(id), newText);
-      setId('');
-      setNewText('');
-    }
+    fetch(`http://localhost:5000/api/tasks/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newText })
+    })
+    .then(res => res.json())
+    .then(() => {
+      // Optionally update state in parent
+    });
   };
 
   const handleCancel = () => {
