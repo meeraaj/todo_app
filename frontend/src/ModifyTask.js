@@ -5,15 +5,16 @@ function ModifyTask({ todos, modifyTodo }) {
   const [newText, setNewText] = useState('');
 
   const handleModify = () => {
-    fetch(`http://localhost:5000/api/tasks/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newText })
-    })
-    .then(res => res.json())
-    .then(() => {
-      // Optionally update state in parent
-    });
+    const taskId = parseInt(id);
+    if (isNaN(taskId)) {
+        alert('Please enter a valid task ID');
+        return;
+    }
+    // Only use modifyTodo, remove the direct fetch
+    modifyTodo(taskId, { name: newText });
+    // Clear inputs after modification
+    setId('');
+    setNewText('');
   };
 
   const handleCancel = () => {
