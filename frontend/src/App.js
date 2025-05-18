@@ -146,8 +146,8 @@ function App() {
 
   return (
     <div className="App">
-      <div className="page-header">
-        <h1 className="page-title">Task Manager</h1>
+      <header className="App-header">
+        <h1>FlowTask</h1> {/* Changed from "Task Manager" */}
         <div className="header-actions">
           <button className="btn btn-add" onClick={() => {
             setCurrentTask({});
@@ -175,7 +175,7 @@ function App() {
             />
           </div>
         </div>
-      </div>
+      </header>
       
       <div className="task-table-container">
         <table className="task-table">
