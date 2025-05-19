@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
 import jwt
 import datetime
 import psycopg2
@@ -65,18 +64,6 @@ def get_db_connection():
         password=os.getenv('DB_PASSWORD')
     )
     return conn
-
-# File upload configuration
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), UPLOAD_FOLDER)
-
-# Create uploads directory if it doesn't exist
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/api/tasks', methods=['GET'])
 def get_tasks():
@@ -158,7 +145,7 @@ def get_user_profile():
                 'name': user[0],
                 'email': user[1],
                 'mobile': user[2],
-                'profilePicUrl': '/default-avatar.png'
+                'profilePicUrl': '/default-avatar.png'  # Always use default avatar
             })
         return jsonify({'message': 'User not found'}), 404
         
@@ -180,25 +167,26 @@ def register():
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # Check if email already exists
+        # Check if email exists
         cur.execute('SELECT id FROM users WHERE email = %s', (data['email'],))
         if cur.fetchone():
             return jsonify({'message': 'Email already registered'}), 409
 
-        # Hash the password
-        hashed_password = generate_password_hash(data['password'])
-        
-        # Insert new user
+        # Insert new user with default avatar
         cur.execute('''
             INSERT INTO users (name, email, password, mobile)
             VALUES (%s, %s, %s, %s)
             RETURNING id
-        ''', (data['name'], data['email'], hashed_password, data['mobile']))
+        ''', (
+            data['name'],
+            data['email'],
+            generate_password_hash(data['password']),
+            data['mobile']
+        ))
         
         user_id = cur.fetchone()[0]
         conn.commit()
 
-        # Generate JWT token
         token = jwt.encode(
             {
                 'user_id': user_id,
@@ -207,7 +195,7 @@ def register():
             app.config['SECRET_KEY'],
             algorithm='HS256'
         )
-
+        
         return jsonify({
             'message': 'Registration successful',
             'token': token
@@ -258,97 +246,6 @@ def login():
         print(f"Login error: {str(e)}")
         return jsonify({'message': 'Login failed'}), 500
 
-@app.route('/api/register', methods=['POST', 'OPTIONS'])
-def register_with_file():
-    if request.method == 'OPTIONS':
-        return '', 200
-
-    try:
-        name = request.form.get('name')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        mobile = request.form.get('mobile')
-
-        if not all([name, email, password, mobile]):
-            return jsonify({'message': 'Missing required fields'}), 400
-
-        profile_pic_url = None
-        if 'profile_pic' in request.files:
-            file = request.files['profile_pic']
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(file_path)
-                profile_pic_url = f'/uploads/{filename}'
-
-        conn = get_db_connection()
-        cur = conn.cursor()
-        
-        # Check if email exists
-        cur.execute('SELECT id FROM users WHERE email = %s', (email,))
-        if cur.fetchone():
-            return jsonify({'message': 'Email already registered'}), 409
-
-        # Insert new user
-        cur.execute('''
-            INSERT INTO users (name, email, password, mobile, profile_pic_url)
-            VALUES (%s, %s, %s, %s, %s)
-            RETURNING id
-        ''', (name, email, generate_password_hash(password), mobile, profile_pic_url))
-        
-        user_id = cur.fetchone()[0]
-        conn.commit()
-
-        token = jwt.encode(
-            {
-                'user_id': user_id,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)
-            },
-            app.config['SECRET_KEY'],
-            algorithm='HS256'
-        )
-        
-        return jsonify({
-            'message': 'Registration successful',
-            'token': token
-        }), 201
-
-    except Exception as e:
-        print(f"Registration error: {str(e)}")
-        return jsonify({'message': 'Registration failed'}), 500
-
-    finally:
-        if 'cur' in locals():
-            cur.close()
-        if 'conn' in locals():
-            conn.close()
-
-@app.route('/api/tasks/<int:task_id>', methods=['PUT'])
-def modify_task(task_id):
-    try:
-        data = request.json
-        if not data:
-            return jsonify({'message': 'No data provided'}), 400
-
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute(
-            'UPDATE tasks SET name = %s, status = %s, start_time = %s, end_time = %s WHERE id = %s',
-            (data['name'], data.get('status'), data.get('start_time'), 
-             data.get('end_time'), task_id)
-        )
-        conn.commit()
-        return jsonify({"success": True})
-
-    except Exception as e:
-        print(f"Error updating task: {str(e)}")
-        return jsonify({'message': 'Failed to update task'}), 500
-
-    finally:
-        if 'cur' in locals():
-            cur.close()
-        if 'conn' in locals():
-            conn.close()
 
 @app.route('/api/tasks/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
