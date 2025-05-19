@@ -16,10 +16,15 @@ app = Flask(__name__)
 # Update secret key from environment
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-# Update CORS configuration to allow requests from port 3001
+# Update CORS configuration to allow requests from production domain
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["http://localhost:3001", "http://localhost:3000"],
+        "origins": [
+            "http://localhost:3001",
+            "http://localhost:3000",
+            "http://todoapp.westus.cloudapp.azure.com",
+            "https://todoapp.westus.cloudapp.azure.com"
+        ],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
         "expose_headers": ["Content-Type", "Authorization"],
@@ -39,9 +44,16 @@ def gateway_timeout(e):
 def handle_preflight():
     if request.method == "OPTIONS":
         response = make_response()
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add('Access-Control-Allow-Headers', "*")
-        response.headers.add('Access-Control-Allow-Methods', "*")
+        origin = request.headers.get('Origin')
+        if origin in [
+            "http://localhost:3001",
+            "http://localhost:3000",
+            "http://todoapp.westus.cloudapp.azure.com",
+            "https://todoapp.westus.cloudapp.azure.com"
+        ]:
+            response.headers.add("Access-Control-Allow-Origin", origin)
+            response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+            response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
         return response
 
 # Database configuration
