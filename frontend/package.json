@@ -13,8 +13,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=80 HOST=0.0.0.0 react-scripts start",
     "build": "react-scripts build",
+    "serve-prod": "serve -s build -l 80 -n",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
