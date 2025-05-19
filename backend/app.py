@@ -6,8 +6,15 @@ import jwt
 import datetime
 import psycopg2
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
+
+# Update secret key from environment
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 # Update CORS configuration to allow requests from port 3001
 CORS(app, resources={
@@ -37,19 +44,15 @@ def handle_preflight():
         response.headers.add('Access-Control-Allow-Methods', "*")
         return response
 
-app.config['SECRET_KEY'] = 'your-secret-key-here'  # Add this near the top after app creation
-
 # Database configuration
 def get_db_connection():
-    try:
-        conn = psycopg2.connect(
-            os.getenv('DATABASE_URL'),
-            connect_timeout=5
-        )
-        return conn
-    except Exception as e:
-        print(f"Database connection error: {str(e)}")
-        raise
+    conn = psycopg2.connect(
+        host=os.getenv('DB_HOST'),
+        database=os.getenv('DB_NAME'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD')
+    )
+    return conn
 
 # File upload configuration
 UPLOAD_FOLDER = 'uploads'
