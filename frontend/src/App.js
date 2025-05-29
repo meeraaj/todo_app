@@ -33,13 +33,25 @@ function App() {
 
   const fetchUserDetails = async () => {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setIsAuthenticated(false);
+        return;
+      }
+
       const response = await fetch(`${API_BASE_URL}/user/profile`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
       if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          setIsAuthenticated(false);
+          setUserDetails(null);
+          return;
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
@@ -48,7 +60,7 @@ function App() {
     } catch (error) {
       console.error('Error fetching user details:', error);
       if (error.message.includes('Failed to fetch')) {
-        alert('Cannot connect to server. Please make sure the backend is running.');
+        console.error('Server connection failed');
       }
     }
   };
@@ -123,12 +135,20 @@ function App() {
   };
 
   useEffect(() => {
-    // Check if token exists and is valid
     const token = localStorage.getItem('token');
-    if (!token) {
+    if (token) {
+      setIsAuthenticated(true);
+      fetchUserDetails();
+    } else {
       setIsAuthenticated(false);
     }
-  }, []);
+  }, []); // Run once on mount
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchTodos();
+    }
+  }, [isAuthenticated]); // Run when auth state changes
 
   if (!isAuthenticated) {
     return showRegister ? (

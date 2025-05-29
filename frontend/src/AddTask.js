@@ -7,27 +7,34 @@ function AddTask({ onTaskAdded }) {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
 
-  const handleAdd = () => {
-    fetch('http://localhost:5000/api/tasks', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name,
-        description,
-        status,
-        start_time: startTime ? new Date(startTime).toISOString() : null,
-        end_time: endTime ? new Date(endTime).toISOString() : null
-      })
-    })
-      .then(res => res.json())
-      .then(() => {
+  const handleAdd = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/tasks', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name,
+          status,
+          start_time: startTime ? new Date(startTime).toISOString() : null,
+          end_time: endTime ? new Date(endTime).toISOString() : null
+        })
+      });
+
+      if (response.ok) {
+        const newTask = await response.json();
         setName('');
-        setDescription('');
         setStatus('pending');
         setStartTime('');
         setEndTime('');
-        if (onTaskAdded) onTaskAdded();
-      });
+        if (onTaskAdded) onTaskAdded(); // This will trigger a refresh of the task list
+      }
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
   };
 
   return (

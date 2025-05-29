@@ -19,33 +19,32 @@ function Register({ onRegister, onShowLogin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
-      const formData = new FormData();
-      formData.append('name', name);
-      formData.append('email', email);
-      formData.append('password', password);
-      formData.append('mobile', mobile);
-      if (profilePic) {
-        formData.append('profile_pic', profilePic);
-      }
+        const response = await fetch('http://localhost:5000/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                name,
+                email,
+                password,
+                mobile
+            })
+        });
 
-      const response = await fetch('http://localhost:5000/api/register', {
-        method: 'POST',
-        body: formData // Remove Content-Type header to let browser set it with boundary
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        onRegister();
-      } else {
-        alert(data.message || 'Registration failed');
-      }
+        const data = await response.json();
+        
+        if (response.ok) {
+            localStorage.setItem('token', data.token);
+            onRegister();
+        } else {
+            alert(data.message || 'Registration failed');
+        }
     } catch (error) {
-      console.error('Registration error:', error);
-      alert('Registration failed. Please try again.');
+        console.error('Registration error:', error);
+        alert('Registration failed. Please try again.');
     }
   };
 
