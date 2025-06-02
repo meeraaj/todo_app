@@ -15,6 +15,7 @@ function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
 
+
   const fetchTodos = () => {
     fetch(`${API_BASE_URL}/tasks`, {
       headers: {
@@ -28,7 +29,7 @@ function App() {
   useEffect(() => {
     if (isAuthenticated) {
       fetchUserDetails();
-    }
+    } 
   }, [isAuthenticated]);
 
   const fetchUserDetails = async () => {
@@ -127,6 +128,34 @@ function App() {
     });
   };
 
+  const searchTodos = (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    
+    if (!searchTerm) {
+      // If search is empty, fetch all todos
+      fetchTodos();
+      return;
+    }
+
+    fetch(`${API_BASE_URL}/tasks/search`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ query: searchTerm })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (Array.isArray(data)) {
+        setTodos(data);
+      }
+    })
+    .catch(error => {
+      console.error('Error searching todos:', error);
+    });
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
@@ -194,6 +223,15 @@ function App() {
               }}
             />
           </div>
+          <div className="search-container">
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Search tasks..." 
+              onChange={searchTodos}
+            />
+            <search role="img" aria-label="Search">🔍</search>  
+          </div>
         </div>
       </header>
       
@@ -255,7 +293,7 @@ function App() {
                 name: formData.get('name'),
                 status: formData.get('status'),
                 start_time: formData.get('start_time'),
-                end_time: formData.get('end_time')
+                end_time: formData.get('end_time'),
               };
               
               if (currentTask.id) {

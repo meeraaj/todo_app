@@ -152,6 +152,52 @@ def add_task():
         if 'conn' in locals():
             conn.close()
 
+@app.route('/api/tasks/search', methods=['POST'])
+def search_tasks():
+    try:
+        # Get token and validate
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            return jsonify({'message': 'No token provided'}), 401
+
+        token = auth_header.split(' ')[1]
+        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        user_id = payload['user_id']
+
+        # Get search query
+        data = request.get_json()
+        if not data or 'query' not in data:
+            return jsonify({'message': 'Search query is required'}), 400
+        
+        query = data['query']
+
+        # Search in database
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        cur.execute('''
+            SELECT id, name, status, start  _time, end_time 
+            FROM tasks 
+            WHERE user_id = %s AND name ILIKE %s
+            ORDER BY start_time DESC NULLS LAST
+        ''', (user_id, f'%{query}%'))
+        
+        tasks = [{
+            "id": row[0],
+            "name": row[1],
+            "status": row[2],
+            "start_time": row[3].isoformat() if row[3] else None,
+            "end_time": row[4].isoformat() if row[4] else None
+        } for row in cur.fetchall()]
+        
+        cur.close()
+        conn.close()
+        
+        return jsonify(tasks)
+        
+    except Exception as e:
+        print(f"Error searching tasks: {str(e)}")
+        return jsonify({'message': 'Failed to search tasks'}), 500
 
 @app.route('/api/user/profile', methods=['GET'])
 def get_user_profile():
