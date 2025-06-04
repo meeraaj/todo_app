@@ -5,6 +5,8 @@ function Login({ onLogin, onShowRegister }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  const API_BASE_URL = 'http://taskify.westus.cloudapp.azure.com:5000/api';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

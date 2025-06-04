@@ -17,6 +17,8 @@ function Register({ onRegister, onShowLogin }) {
     }
   };
 
+  const API_BASE_URL = 'http://taskify.westus.cloudapp.azure.com:5000/api';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
