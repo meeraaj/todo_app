@@ -4,7 +4,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import UserProfile from './components/UserProfile';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://taskify.westus.cloudapp.azure.com/:5000/api';
 
 function App() {
   const [todos, setTodos] = useState([]);
