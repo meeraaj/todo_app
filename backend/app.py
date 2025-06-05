@@ -23,6 +23,7 @@ CORS(app, resources={
         "origins": [
             "http://localhost:3000",
             "http://127.0.0.1:3000",
+            "http://taskify.westus.cloudapp.azure.com",
             "http://taskify.westus.cloudapp.azure.com:5000",
         ],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
