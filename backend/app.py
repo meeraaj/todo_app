@@ -45,6 +45,8 @@ def handle_preflight():
 
 # Database configuration
 def get_db_connection():
+    print("Connecting to database...")  # Add logging
+    print(f"DB_HOST: {os.getenv('DB_HOST')}, DB_NAME: {os.getenv('DB_NAME')}, DB_USER: {os.getenv('DB_USER')}")  # Add logging
     conn = psycopg2.connect(
         host=os.getenv('DB_HOST'),
         database=os.getenv('DB_NAME'),
